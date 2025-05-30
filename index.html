@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>World Currency Converter</title>
+  
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+  body {
+  position: relative;
+  font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(135deg, #c3ecf7, #fdfdfd);
+  text-align: center;
+  padding: 60px 20px;
+  color: #2c3e50;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* to contain the pseudo-element */
+}
+
+  body::before {
+    content: "";
+    position: fixed; /* or absolute */
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url('https://th.bing.com/th/id/OIP.SAgLQCVEYw3lJL3I3UZAhAHaEK?rs=1&pid=ImgDetMain');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.21;
+    z-index: -1; /* behind all content */
+}
+
+
+.converter {
+  position: relative;
+  background: white;
+  padding: 45px 40px;
+  max-width: 420px;
+  width: 100%;
+  border-radius: 20px;
+  box-shadow:
+    0 15px 30px rgba(44, 62, 80, 0.12),
+    0 4px 20px rgba(44, 62, 80, 0.08);
+}
+
+input{
+  width:90%;
+  padding: 14px 18px;
+  margin: 16px 0;
+  border-radius: 14px;
+  border: 1.7px solid #ccc;
+  font-size: 1.05em;
+  font-weight: 500;
+  color: #34495e;
+  background: #fefefe;
+  box-shadow: inset 1px 1px 8px #ecf0f1;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+select {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 14px 18px;
+  margin: 16px 0;
+  border-radius: 14px;
+  border: 1.7px solid #ccc;
+  font-size: 1.05em;
+  font-weight: 500;
+  color: #34495e;
+  background: #fefefe;
+  box-shadow: inset 1px 1px 8px #ecf0f1;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+input:focus, select:focus {
+  border-color: #2980b9;
+  box-shadow: 0 0 12px #2980b9aa;
+  outline: none;
+  background: #fff;
+}
+
+button {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 16px 0;
+  background: linear-gradient(135deg, #2980b9, #3498db);
+  color: white;
+  font-weight: 700;
+  font-size: 1.15em;
+  border: none;
+  border-radius: 18px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(41, 128, 185, 0.5);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #1f6396, #2b7ac7);
+  box-shadow: 0 14px 35px rgba(41, 128, 185, 0.7);
+}
+
+.result {
+  position: relative;
+  z-index: 1;
+  margin-top: 30px;
+  font-size: 1.5em;
+  font-weight: 800;
+  color: #2c3e50;
+  letter-spacing: 0.05em;
+  font-family: 'Georgia', serif;
+  text-shadow: 0 1px 6px rgba(44, 62, 80, 0.15);
+}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  /* For tablets and smaller screens */
+  body {
+    padding: 40px 15px;
+  }
+
+  .converter {
+    padding: 35px 30px;
+    max-width: 360px;
+  }
+  input{
+    width: 90%;
+    padding: 10px 12px;
+    font-size: 0.95em;
+    margin: 10px 0;
+  }
+
+  select, button {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 1em;
+    margin: 12px 0;
+  }
+
+  button {
+    padding: 14px 0;
+    font-size: 1.1em;
+  }
+}
+
+@media (max-width: 480px) {
+  /* For mobile phones */
+  body {
+    padding: 30px 10px;
+  }
+
+  .converter {
+    padding: 25px 20px;
+    max-width: 320px;
+    border-radius: 15px;
+  }
+  input{
+    width: 90%;
+    padding: 10px 12px;
+    font-size: 0.95em;
+    margin: 10px 0;
+  }
+
+  select, button {
+    padding: 10px 12px;
+    font-size: 0.95em;
+    margin: 10px 0;
+  }
+
+  button {
+    padding: 12px 0;
+    font-size: 1em;
+  }
+}
+
+</style>
+</head>
+<body>
+
+  <div class="converter">
+    <h2>Currency Converter</h2>
+    <input type="number" id="amount" placeholder="Enter amount" />
+    
+    <select id="fromCurrency"></select>
+    <select id="toCurrency"></select>
+    
+    <button onclick="convertCurrency()">Convert</button>
+    
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const currencyRates = {
+      "USD": { name: "US Dollar", rate: 1.00 },
+      "EUR": { name: "Euro", rate: 0.93 },
+      "GBP": { name: "British Pound", rate: 0.79 },
+      "INR": { name: "Indian Rupee", rate: 83.26 },
+      "AUD": { name: "Australian Dollar", rate: 1.51 },
+      "CAD": { name: "Canadian Dollar", rate: 1.37 },
+      "SGD": { name: "Singapore Dollar", rate: 1.35 },
+      "JPY": { name: "Japanese Yen", rate: 157.12 },
+      "CNY": { name: "Chinese Yuan", rate: 7.24 },
+      "RUB": { name: "Russian Ruble", rate: 89.56 },
+      "KRW": { name: "South Korean Won", rate: 1377.60 },
+      "BRL": { name: "Brazilian Real", rate: 5.13 },
+      "ZAR": { name: "South African Rand", rate: 18.40 },
+      "AED": { name: "UAE Dirham", rate: 3.67 },
+      "BDT": { name: "Bangladeshi Taka", rate: 117.30 },
+      "PKR": { name: "Pakistani Rupee", rate: 278.50 },
+      "LKR": { name: "Sri Lankan Rupee", rate: 300.15 },
+      "MXN": { name: "Mexican Peso", rate: 16.94 },
+      "THB": { name: "Thai Baht", rate: 36.49 },
+      "MYR": { name: "Malaysian Ringgit", rate: 4.70 },
+      "NZD": { name: "New Zealand Dollar", rate: 1.62 },
+      "CHF": { name: "Swiss Franc", rate: 0.91 },
+      "SEK": { name: "Swedish Krona", rate: 10.65 },
+      "NOK": { name: "Norwegian Krone", rate: 10.83 },
+      "DKK": { name: "Danish Krone", rate: 6.95 },
+      "PHP": { name: "Philippine Peso", rate: 57.73 },
+      "IDR": { name: "Indonesian Rupiah", rate: 15900 },
+      "VND": { name: "Vietnamese Dong", rate: 25400 },
+      "HKD": { name: "Hong Kong Dollar", rate: 7.82 },
+      "ILS": { name: "Israeli Shekel", rate: 3.68 },
+      "TRY": { name: "Turkish Lira", rate: 32.18 },
+      "EGP": { name: "Egyptian Pound", rate: 47.01 },
+      "KWD": { name: "Kuwaiti Dinar", rate: 0.31 },
+      "OMR": { name: "Omani Rial", rate: 0.38 },
+      "QAR": { name: "Qatari Riyal", rate: 3.64 },
+      "SAR": { name: "Saudi Riyal", rate: 3.75 },
+      "JOD": { name: "Jordanian Dinar", rate: 0.71 },
+      "MAD": { name: "Moroccan Dirham", rate: 10.12 },
+      "NGN": { name: "Nigerian Naira", rate: 1440 },
+      "KES": { name: "Kenyan Shilling", rate: 131.05 },
+      "GHS": { name: "Ghanaian Cedi", rate: 14.70 },
+      "PLN": { name: "Polish Złoty", rate: 4.10 },
+      "CZK": { name: "Czech Koruna", rate: 22.88 },
+      "HUF": { name: "Hungarian Forint", rate: 342.01 },
+      "RON": { name: "Romanian Leu", rate: 4.63 },
+      "CLP": { name: "Chilean Peso", rate: 933.00 },
+      "COP": { name: "Colombian Peso", rate: 3895 },
+      "ARS": { name: "Argentine Peso", rate: 880.50 },
+      "UYU": { name: "Uruguayan Peso", rate: 39.55 },
+      "BOB": { name: "Bolivian Boliviano", rate: 6.90 },
+      "PYG": { name: "Paraguayan Guarani", rate: 7300 },
+      "NPR": { name: "Nepalese Rupee", rate: 132.95 },
+      "MVR": { name: "Maldivian Rufiyaa", rate: 15.42 },
+      "BND": { name: "Brunei Dollar", rate: 1.35 },
+      "FJD": { name: "Fijian Dollar", rate: 2.25 },
+      "ETB": { name: "Ethiopian Birr", rate: 57.33 },
+      "AFN": { name: "Afghan Afghani", rate: 74.50 }
+    };
+
+    const fromSelect = document.getElementById('fromCurrency');
+    const toSelect = document.getElementById('toCurrency');
+    const resultBox = document.getElementById('result');
+
+    for (let code in currencyRates) {
+      const fullName = currencyRates[code].name;
+      
+      const option1 = document.createElement('option');
+      option1.value = code;
+      option1.text = `${code} (${fullName})`;
+      fromSelect.appendChild(option1);
+
+      const option2 = document.createElement('option');
+      option2.value = code;
+      option2.text = `${code} (${fullName})`;
+      toSelect.appendChild(option2);
+    }
+
+    fromSelect.value = "USD";
+    toSelect.value = "INR";
+
+    function convertCurrency() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const from = fromSelect.value;
+      const to = toSelect.value;
+
+      if (isNaN(amount)) {
+        resultBox.innerText = "Please enter a valid amount.";
+        return;
+      }
+
+      const converted = (amount / currencyRates[from].rate) * currencyRates[to].rate;
+      resultBox.innerText = `${amount} ${from} = ${converted.toFixed(2)} ${to}`;
+    }
+  </script>
+</body>
+</html>
